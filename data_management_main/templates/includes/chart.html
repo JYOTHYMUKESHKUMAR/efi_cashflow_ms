@@ -1,0 +1,108 @@
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Prepare data for the CashIn chart
+        var cashinSeriesData = [];
+        var cashoutSeriesData = [];
+
+        var years = [
+            {% for year in years %}
+                "{{ year }}",
+            {% endfor %}
+        ];
+
+        {% for project in projects %}
+            var cashinSeriesItem = {
+                name: "{{ project }}",
+                data: [
+                    {% for year in years %}
+                        {{ cashin_chart_data[project][year] }},
+                    {% endfor %}
+                ]
+            };
+            cashinSeriesData.push(cashinSeriesItem);
+
+            var cashoutSeriesItem = {
+                name: "{{ project }}",
+                data: [
+                    {% for year in years %}
+                        {{ cashout_chart_data[project][year] }},
+                    {% endfor %}
+                ]
+            };
+            cashoutSeriesData.push(cashoutSeriesItem);
+        {% endfor %}
+
+        // CashIn chart
+        var optionsCashIn = {
+            series: cashinSeriesData,
+            chart: {
+                type: 'bar',
+                height: 350,
+                stacked: true
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '45%',
+                }
+            },
+            xaxis: {
+                categories: years
+            },
+            fill: {
+                opacity: 1
+            },
+            legend: {
+                position: 'top'
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (val) {
+                        return val.toFixed(2);
+                    }
+                }
+            }
+        };
+
+        var chartCashIn = new ApexCharts(document.querySelector("#cashin_chart"), optionsCashIn);
+        chartCashIn.render();
+
+        // Cashout chart
+        var optionsCashout = {
+            series: cashoutSeriesData,
+            chart: {
+                type: 'bar',
+                height: 350,
+                stacked: true
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '45%',
+                }
+            },
+            xaxis: {
+                categories: years
+            },
+            fill: {
+                opacity: 1
+            },
+            legend: {
+                position: 'top'
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (val) {
+                        return val.toFixed(2);
+                    }
+                }
+            }
+        };
+
+        var chartCashout = new ApexCharts(document.querySelector("#cashout_chart"), optionsCashout);
+        chartCashout.render();
+    });
+</script>
