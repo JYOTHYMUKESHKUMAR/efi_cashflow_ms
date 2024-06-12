@@ -40,11 +40,17 @@
                         </div>
                         <div class="form-group">
                             <label for="status">Status:</label>
-                            <select class="form-control" name="status" id="status" required>
+                            <select class="form-control" name="status" id="status" onchange="toggleDelayedDateField()" required>
                                 <option value="Received" {% if cashin_obj.status == 'Received' %} selected {% endif %}>Received</option>
                                 <option value="Scheduled" {% if cashin_obj.status == 'Scheduled' %} selected {% endif %}>Scheduled</option>
+                                <option value="Delayed" {% if cashin_obj.status == 'Delayed' %} selected {% endif %}>Delayed</option>
                             </select>
                         </div>
+                        <div class="form-group" id="delayed-date-field" {% if cashin_obj.status != 'Delayed' %} style="display:none;" {% endif %}>
+                            <label for="delayed_date">Delayed Date:</label>
+                            <input type="date" class="form-control" name="delayed_date" id="delayed_date" value="{{ cashin_obj.delayed_date|date:'Y-m-d' }}">
+                        </div>
+                       
                         <div class="form-group">
                             <label for="remark">Remark:</label>
                             <textarea class="form-control" name="remark" id="remark" required>{{ cashin_obj.remark }}</textarea>
@@ -78,4 +84,16 @@
         </div>
     </div>
 </div>
+
+<script>
+    function toggleDelayedDateField() {
+        const statusField = document.getElementById('status');
+        const delayedDateField = document.getElementById('delayed-date-field');
+        if (statusField.value === 'Delayed') {
+            delayedDateField.style.display = 'block';
+        } else {
+            delayedDateField.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}

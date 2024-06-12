@@ -45,7 +45,8 @@ def HOME(request):
     }
 
     return render(request, 'account/home.html', context)
-    
+
+
 @login_required(login_url='/')
 def ADD_CASHIN(request):
     income_source = IncomeSource.objects.all()
@@ -56,28 +57,27 @@ def ADD_CASHIN(request):
         date = request.POST.get('date')
         cash_in = request.POST.get('cash_in')
         status = request.POST.get('status')
+        delayed_date = request.POST.get('delayed_date') if status == 'Delayed' else None
         remark = request.POST.get('remark')
         project_id = request.POST.get('project_id')
         cost_center = request.POST.get('cost_center')
         service_date = request.POST.get('service_date')
 
-        # Retrieve IncomeSource and Project objects
         income_source = IncomeSource.objects.get(id=income_source_id)
         project = Project.objects.get(id=project_id)
         
-        # Get the currently logged-in user
-        admin = request.user
         
-        # Create and save CashIn instance
         cashin = CashIn(
             income_source=income_source,
             date=date,
             cash_in=cash_in,
             status=status,
+            delayed_date=delayed_date,
             remark=remark,
             project=project,
             cost_center=cost_center,
-            service_date=service_date
+            service_date=service_date,
+           
         )
         cashin.save()
         
@@ -90,6 +90,7 @@ def ADD_CASHIN(request):
     }
     
     return render(request, 'account/add-cashin.html', context)
+
 
 @login_required(login_url='/')
 def VIEW_CASHIN(request):
@@ -132,10 +133,16 @@ def UPDATE_CASHIN(request):
         cashin.date = date
         cashin.cash_in = cash_in
         cashin.status = status
-        cashin.remark = remark
+        remark = remark
         cashin.project_id = project_id
         cashin.cost_center = cost_center
         cashin.service_date = service_date
+        
+        # Check if status is 'Delayed' and 'delayed_date' is provided in the POST data
+        if status == 'Delayed':
+            delayed_date = request.POST.get('delayed_date')
+            cashin.delayed_date = delayed_date
+        
         cashin.save()
 
         messages.success(request, 'Cashin Record Successfully Updated!')
@@ -204,7 +211,7 @@ def export_cashin(request):
     response['Content-Disposition'] = 'attachment; filename="cashin_data.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['ID', 'Date', 'Income Source', 'Cash In', 'Status', 'Project', 'Cost Center', 'Service Date'])
+    writer.writerow(['ID', 'Date', 'Income Source', 'Cash In', 'Status','delayed_date', 'Project', 'Cost Center', 'Service Date'])
 
     for cashin in cashins:
         writer.writerow([
@@ -213,6 +220,7 @@ def export_cashin(request):
             cashin.income_source.name,
             cashin.cash_in,
             cashin.status,
+            cashin.delayed_date,
             cashin.project.name,
             cashin.cost_center,
             cashin.service_date
@@ -250,6 +258,9 @@ def add_project(request):
 
 
 
+
+
+
 @login_required(login_url='/')
 def ADD_CASHOUT(request):
     expense_source_list = ExpenseSource.objects.all()
@@ -260,6 +271,7 @@ def ADD_CASHOUT(request):
         date = request.POST.get('date')
         cash_out = request.POST.get('cash_out')
         status = request.POST.get('status')
+        delayed_date = request.POST.get('delayed_date')
         remark = request.POST.get('remark')
         project_id = request.POST.get('project_id')
         cost_center = request.POST.get('cost_center')
@@ -293,7 +305,8 @@ def ADD_CASHOUT(request):
             remark=remark,
             project=project,
             cost_center=cost_center,
-            service_date=service_date
+            service_date=service_date,
+            delayed_date=delayed_date if status == 'Delayed' else None
         )
         cashout.save()
 
@@ -321,6 +334,7 @@ def ADD_CASHOUT(request):
     }
 
     return render(request, 'account/add-cashout.html', context)
+
 @login_required(login_url='/')
 def add_expense_source(request):
     if request.method == "POST":
@@ -367,6 +381,7 @@ def EDIT_CASHOUT(request, id):
     return render(request, 'account/edit-cashout.html', context)
 
 @login_required(login_url='/')
+
 def UPDATE_CASHOUT(request):
     if request.method == "POST":
         cashout_id = request.POST.get('cashout_id')
@@ -386,6 +401,30 @@ def UPDATE_CASHOUT(request):
         cashout.project_id = project_id
         cashout.cost_center = cost_center
         cashout.service_date = service_date
+
+        if status == "Scheduled":
+            installment_details = []
+            for i in range(1, 6):
+                installment_date = request.POST.get(f'installment_{i}_date')
+                installment_amount = request.POST.get(f'installment_{i}_amount')
+                if installment_date and installment_amount:
+                    installment_details.append({'date': installment_date, 'amount': installment_amount})
+
+            if installment_details:
+                cashout.update_installments(installment_details)
+            else:
+                cashout.delete()
+                messages.error(request, 'Installment details cannot be empty for scheduled cashout.')
+                # return redirect('add_cashout')
+
+       
+        
+
+        # Check if delayed_date is provided in the POST data
+        if status == 'Delayed':
+            delayed_date = request.POST.get('delayed_date')
+            cashout.delayed_date = delayed_date
+
         cashout.save()
 
         messages.success(request, 'Cashout Record Successfully Updated!')
@@ -409,7 +448,7 @@ def export_cashout(request):
     response['Content-Disposition'] = 'attachment; filename="cashout_data.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['ID', 'Date', 'Expense Source', 'Cash Out', 'Status', 'Remark', 'Project', 'Cost Center', 'Service Date', 'Total Installment Amount', 'Balance to Pay'])
+    writer.writerow(['ID', 'Date', 'Expense Source', 'Cash Out', 'Status', 'delayed_date','Remark', 'Project', 'Cost Center', 'Service Date', 'Total Installment Amount', 'Balance to Pay'])
 
     for cashout in cashouts:
         writer.writerow([
@@ -418,6 +457,7 @@ def export_cashout(request):
             cashout.expense_source.name,
             cashout.cash_out,
             cashout.status,
+            cashout.delayed_date,
             cashout.remark,
             cashout.project.name if cashout.project else "",  # Check if project exists
             cashout.cost_center,

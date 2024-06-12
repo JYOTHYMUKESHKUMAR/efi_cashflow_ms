@@ -44,6 +44,7 @@
                            <th>Expense Source</th>
                            <th>Cash Out</th>
                            <th>Status</th>
+                           <th>delayed_date</th>
                            <th>Project</th>
                            <th>Cost Center</th>
                            <th>Service Date</th>
@@ -62,6 +63,7 @@
                            <td>{{ cashout.expense_source.name }}</td>
                            <td>{{ cashout.cash_out }}</td>
                            <td>{{ cashout.status }}</td>
+                           <td>{{cashout.delayed_date}}</td>
                            <td>{{ cashout.project.name }}</td>
                            <td>{{ cashout.cost_center }}</td>
                            <td>{{ cashout.service_date }}</td>

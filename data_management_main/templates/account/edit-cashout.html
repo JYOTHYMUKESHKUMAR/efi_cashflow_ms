@@ -39,10 +39,28 @@
                         </div>
                         <div class="form-group">
                             <label for="status">Status:</label>
-                            <select class="form-control" name="status" id="status" required>
+                            <select class="form-control" name="status" id="status" required onchange="toggleFields()">
                                 <option value="Paid" {% if cashout.status == 'Paid' %} selected {% endif %}>Paid</option>
                                 <option value="Scheduled" {% if cashout.status == 'Scheduled' %} selected {% endif %}>Scheduled</option>
+                                <option value="Delayed" {% if cashout.status == 'Delayed' %} selected {% endif %}>Delayed</option>
                             </select>
+                        </div>
+                        <div id="delayed-date-field" style="display:none;" class="form-group">
+                            <label for="delayed_date">Delayed Date:</label>
+                            <input type="date" class="form-control" name="delayed_date" id="delayed_date" value="{% if cashout.delayed_date %}{{ cashout.delayed_date|date:'Y-m-d' }}{% endif %}">
+                        </div>
+                        <div class="form-group" id="installments-field" style="display:none;">
+                            <label for="num_installments">Number of Installments (Max: 5):</label>
+                            <select class="form-control" name="num_installments" id="num_installments" onchange="showInstallmentFields(this.value)">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div id="installment-fields">
+                            <!-- Installment fields will be generated dynamically here -->
                         </div>
                         <div class="form-group">
                             <label for="remark">Remark:</label>
@@ -74,4 +92,75 @@
         </div>
     </div>
 </div>
+
+<script>
+    function toggleFields() {
+        var status = document.getElementById('status').value;
+        var delayedDateField = document.getElementById('delayed-date-field');
+        var installmentsField = document.getElementById('installments-field');
+
+        if (status === 'Scheduled') {
+            installmentsField.style.display = 'block';
+            delayedDateField.style.display = 'none';
+        } else if (status === 'Delayed') {
+            installmentsField.style.display = 'none';
+            delayedDateField.style.display = 'block';
+        } else {
+            installmentsField.style.display = 'none';
+            delayedDateField.style.display = 'none';
+        }
+        // Clear any previously generated installment fields
+        document.getElementById('installment-fields').innerHTML = '';
+    }
+
+    function showInstallmentFields(numInstallments) {
+        var installmentFieldsDiv = document.getElementById('installment-fields');
+        installmentFieldsDiv.innerHTML = ''; // Clear previous fields
+    
+        for (var i = 1; i <= numInstallments; i++) {
+            var installmentDiv = document.createElement('div');
+            installmentDiv.classList.add('col-sm-11');
+    
+            var label = document.createElement('label');
+            label.textContent = 'Installment ' + i;
+            label.classList.add('blue-heading');
+            installmentDiv.appendChild(label);
+    
+            var rowDiv = document.createElement('div');
+            rowDiv.classList.add('row');
+    
+            var dateDiv = document.createElement('div');
+            dateDiv.classList.add('col-sm-6');
+    
+            var dateInput = document.createElement('input');
+            dateInput.setAttribute('type', 'date');
+            dateInput.setAttribute('class', 'form-control');
+            dateInput.setAttribute('name', 'installment_' + i + '_date');
+            dateInput.setAttribute('placeholder', 'Date');
+            dateDiv.appendChild(dateInput);
+            rowDiv.appendChild(dateDiv);
+    
+            var amountDiv = document.createElement('div');
+            amountDiv.classList.add('col-sm-6');
+    
+            var amountInput = document.createElement('input');
+            amountInput.setAttribute('type', 'number');
+            amountInput.setAttribute('class', 'form-control');
+            amountInput.setAttribute('name', 'installment_' + i + '_amount');
+            amountInput.setAttribute('placeholder', 'Amount');
+            amountDiv.appendChild(amountInput);
+            rowDiv.appendChild(amountDiv);
+    
+            installmentDiv.appendChild(rowDiv);
+    
+            installmentFieldsDiv.appendChild(installmentDiv);
+        }
+    }
+    
+    // Call the function initially to set the visibility correctly
+
+    // Call the function initially to set the visibility correctly
+    toggleFields();
+</script>
+
 {% endblock %}

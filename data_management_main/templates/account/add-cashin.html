@@ -2,7 +2,6 @@
 {% block content %}
 
 <style>
-    /* CSS for blue borders and headings */
     .blue-border {
         border: 2px solid blue;
         padding: 10px;
@@ -19,7 +18,7 @@
     <div class="col-sm-12">
         <div class="card blue-border">
             <div class="card-body">
-                <form method="post" action="{% url 'add_cashin' %}" enctype="multipart/form-data">
+                <form method="post" action="{% url 'add_cashin' %}" enctype="multipart/form-data" id="cashInForm">
                     {% csrf_token %}
                     <div class="col-12">
                         <h5 class="form-title blue-heading"><span>Add CashIn</span></h5>
@@ -59,12 +58,21 @@
                     <div class="col-sm-11">
                         <div class="form-group">
                             <label class="blue-heading">Status</label>
-                            <select class="form-control" name="status" id="id_status" onchange="toggleInstallmentFields()" required>
+                            <select class="form-control" name="status" id="id_status" onchange="toggleDelayedDateField()" required>
                                 <option value="Received">Received</option>
                                 <option value="Scheduled">Scheduled</option>
+                                <option value="Delayed">Delayed</option>
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="col-sm-11" id="delayed-date-field" style="display:none;">
+                        <div class="form-group">
+                            <label class="blue-heading">Delayed Date</label>
+                            <input type="date" class="form-control" name="delayed_date">
+                        </div>
+                    </div>
+
                     <div class="col-sm-11">
                         <div class="form-group">
                             <label class="blue-heading">Remark</label>
@@ -101,7 +109,7 @@
                     <div class="col-sm-11">
                         <div class="form-group">
                             <label class="blue-heading">Service Date</label>
-                            <input type="date" class="form-control" name="service_date">
+                            <input type="date" class="form-control" name="service_date" required>
                         </div>
                     </div>
 
@@ -160,6 +168,16 @@
 </div>
 
 <script>
+    function toggleDelayedDateField() {
+        const statusField = document.getElementById('id_status');
+        const delayedDateField = document.getElementById('delayed-date-field');
+        if (statusField.value === 'Delayed') {
+            delayedDateField.style.display = 'block';
+        } else {
+            delayedDateField.style.display = 'none';
+        }
+    }
+
     function showMessage(message, type) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `alert alert-${type}`;

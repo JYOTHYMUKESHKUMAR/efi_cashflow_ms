@@ -51,10 +51,17 @@
                     <div class="col-sm-11">
                         <div class="form-group">
                             <label class="blue-heading">Status</label>
-                            <select class="form-control" name="status" id="id_status" onchange="toggleInstallmentFields()" required>
+                            <select class="form-control" name="status" id="id_status" onchange="toggleDelayedFields()" required>
                                 <option value="Paid">Paid</option>
                                 <option value="Scheduled">Scheduled</option>
+                                <option value="Delayed">Delayed</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-11" id="delayed_date_div" style="display:none;">
+                        <div class="form-group">
+                            <label class="blue-heading">Delayed Date</label>
+                            <input type="date" class="form-control" name="delayed_date" id="delayed_date">
                         </div>
                     </div>
                     <div class="col-sm-11">
@@ -118,10 +125,9 @@
                                 </select>
                             </div>
                         </div>
-                        </div>
-                        <div id="installment-fields">
-                            <!-- Installment fields will be generated dynamically here -->
-                        </div>
+                    </div>
+                    <div id="installment-fields">
+                        <!-- Installment fields will be generated dynamically here -->
                     </div>
 
                     <br>
@@ -179,6 +185,19 @@
 </div>
 
 <script>
+    function toggleDelayedFields() {
+        var status = document.getElementById('id_status').value;
+        var delayedDateDiv = document.getElementById('delayed_date_div');
+
+        if (status === 'Delayed') {
+            delayedDateDiv.style.display = 'block';
+        } else {
+            delayedDateDiv.style.display = 'none';
+        }
+
+        toggleInstallmentFields();
+    }
+
     function toggleInstallmentFields() {
         var status = document.getElementById('id_status').value;
         var installmentSection = document.getElementById('installment-section');
@@ -235,7 +254,7 @@
     }
 
     // Call the function initially to set the visibility correctly
-    toggleInstallmentFields();
+    toggleDelayedFields();
 
     document.getElementById('save-expense-source').addEventListener('click', function() {
         var name = document.getElementById('new_expense_source').value;
