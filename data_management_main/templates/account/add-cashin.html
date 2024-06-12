@@ -18,7 +18,7 @@
     <div class="col-sm-12">
         <div class="card blue-border">
             <div class="card-body">
-                <form method="post" action="{% url 'add_cashin' %}" enctype="multipart/form-data" id="cashInForm">
+                <form method="post" action="{% url 'add_cashin' %}" enctype="multipart/form-data" id="cashInForm" onsubmit="return validateForm()">
                     {% csrf_token %}
                     <div class="col-12">
                         <h5 class="form-title blue-heading"><span>Add CashIn</span></h5>
@@ -31,7 +31,7 @@
                         <label class="blue-heading">Income Source</label>
                         <div class="input-group">
                             <select class="form-control" name="income_source_id" required>
-                                <option>Select Income Source</option>
+                                <option value="">Select Income Source</option>
                                 {% for i in income_source %}
                                 <option value="{{i.id}}">{{i.name}}</option>
                                 {% endfor %}
@@ -84,7 +84,7 @@
                         <label class="blue-heading">Project</label>
                         <div class="input-group">
                             <select class="form-control" name="project_id" required>
-                                <option>Select Project</option>
+                                <option value="">Select Project</option>
                                 {% for i in project %}
                                 <option value="{{i.id}}">{{i.name}}</option>
                                 {% endfor %}
@@ -99,6 +99,7 @@
                         <div class="form-group">
                             <label class="blue-heading">Cost Center</label>
                             <select class="form-control" name="cost_center" required>
+                                <option value="">Select Cost Center</option>
                                 <option value="catalyst">Catalyst</option>
                                 <option value="oil_and_gas">Oil and Gas</option>
                                 <option value="general_chemicals">General Chemicals</option>
@@ -241,6 +242,29 @@
             }
         });
     };
+
+    function validateForm() {
+        const incomeSourceField = document.querySelector('select[name="income_source_id"]');
+        const projectField = document.querySelector('select[name="project_id"]');
+        const costCenterField = document.querySelector('select[name="cost_center"]');
+        
+        if (incomeSourceField.value === '') {
+            alert('Please select a valid Income Source');
+            return false;
+        }
+
+        if (projectField.value === '') {
+            alert('Please select a valid Project');
+            return false;
+        }
+
+        if (costCenterField.value === '') {
+            alert('Please select a valid Cost Center');
+            return false;
+        }
+
+        return true;
+    }
 </script>
 
 {% endblock %}

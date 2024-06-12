@@ -18,7 +18,7 @@
     <div class="col-sm-12">
         <div class="card blue-border">
             <div class="card-body">
-                <form method="post" action="{% url 'add_cashout' %}" enctype="multipart/form-data">
+                <form method="post" action="{% url 'add_cashout' %}" enctype="multipart/form-data" onsubmit="return validateForm()">
                     {% csrf_token %}
                     <div class="col-12">
                         <h5 class="form-title blue-heading"><span>Add CashOut</span></h5>
@@ -31,7 +31,7 @@
                         <label class="blue-heading">Expense Source</label>
                         <div class="input-group">
                             <select class="form-control" name="expense_source_id" required>
-                                <option>Select Expense Source</option>
+                                <option value="">Select Expense Source</option>
                                 {% for i in expense_source_list %}
                                 <option value="{{ i.id }}">{{ i.name }}</option>
                                 {% endfor %}
@@ -81,7 +81,7 @@
                         <label class="blue-heading">Project</label>
                         <div class="input-group">
                             <select class="form-control" name="project_id" required>
-                                <option>Select Project</option>
+                                <option value="">Select Project</option>
                                 {% for i in project_list %}
                                 <option value="{{ i.id }}">{{ i.name }}</option>
                                 {% endfor %}
@@ -186,13 +186,13 @@
 
 <script>
     function toggleDelayedFields() {
-        var status = document.getElementById('id_status').value;
-        var delayedDateDiv = document.getElementById('delayed_date_div');
+        var statusField = document.getElementById("id_status");
+        var delayedDateDiv = document.getElementById("delayed_date_div");
 
-        if (status === 'Delayed') {
-            delayedDateDiv.style.display = 'block';
+        if (statusField.value === "Delayed") {
+            delayedDateDiv.style.display = "block";
         } else {
-            delayedDateDiv.style.display = 'none';
+            delayedDateDiv.style.display = "none";
         }
 
         toggleInstallmentFields();
@@ -210,50 +210,62 @@
     }
 
     function showInstallmentFields(numInstallments) {
-        var installmentFieldsDiv = document.getElementById('installment-fields');
-        installmentFieldsDiv.innerHTML = ''; // Clear previous fields
+        var installmentFieldsDiv = document.getElementById("installment-fields");
+        installmentFieldsDiv.innerHTML = ""; // Clear existing fields
 
         for (var i = 1; i <= numInstallments; i++) {
-            var installmentDiv = document.createElement('div');
-            installmentDiv.classList.add('col-sm-11');
+            var installmentDiv = document.createElement("div");
+            installmentDiv.className = "col-sm-11 form-group";
 
-            var label = document.createElement('label');
-            label.textContent = 'Installment ' + i;
-            label.classList.add('blue-heading');
+            var label = document.createElement("label");
+            label.className = "blue-heading";
+            label.innerText = "Installment " + i;
             installmentDiv.appendChild(label);
 
-            var rowDiv = document.createElement('div');
-            rowDiv.classList.add('row');
+            var rowDiv = document.createElement("div");
+            rowDiv.className = "row";
 
-            var dateDiv = document.createElement('div');
-            dateDiv.classList.add('col-sm-6');
+            var dateDiv = document.createElement("div");
+            dateDiv.className = "col-sm-6";
 
-            var dateInput = document.createElement('input');
-            dateInput.setAttribute('type', 'date');
-            dateInput.setAttribute('class', 'form-control');
-            dateInput.setAttribute('name', 'installment_' + i + '_date');
-            dateInput.setAttribute('placeholder', 'Date');
+            var dateInput = document.createElement("input");
+            dateInput.type = "date";
+            dateInput.className = "form-control";
+            dateInput.name = "installment_" + i + "_date";
+            dateInput.placeholder = "Date";
             dateDiv.appendChild(dateInput);
-            rowDiv.appendChild(dateDiv);
 
-            var amountDiv = document.createElement('div');
-            amountDiv.classList.add('col-sm-6');
+            var amountDiv = document.createElement("div");
+            amountDiv.className = "col-sm-6";
 
-            var amountInput = document.createElement('input');
-            amountInput.setAttribute('type', 'number');
-            amountInput.setAttribute('class', 'form-control');
-            amountInput.setAttribute('name', 'installment_' + i + '_amount');
-            amountInput.setAttribute('placeholder', 'Amount');
+            var amountInput = document.createElement("input");
+            amountInput.type = "number";
+            amountInput.className = "form-control";
+            amountInput.name = "installment_" + i + "_amount";
+            amountInput.placeholder = "Amount";
             amountDiv.appendChild(amountInput);
+
+            rowDiv.appendChild(dateDiv);
             rowDiv.appendChild(amountDiv);
 
             installmentDiv.appendChild(rowDiv);
-
             installmentFieldsDiv.appendChild(installmentDiv);
         }
     }
 
-    // Call the function initially to set the visibility correctly
+    function validateForm() {
+        var installmentFieldsDiv = document.getElementById("installment-fields");
+        var statusField = document.getElementById("id_status");
+
+        if (statusField.value === "Scheduled" && installmentFieldsDiv.childElementCount === 0) {
+            alert("Please add at least one installment for a scheduled cash out.");
+            return false;
+        }
+
+        return true;
+    }
+
+    // Initial toggle to set visibility based on the status value
     toggleDelayedFields();
 
     document.getElementById('save-expense-source').addEventListener('click', function() {

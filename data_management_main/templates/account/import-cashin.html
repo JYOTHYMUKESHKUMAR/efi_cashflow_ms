@@ -20,12 +20,12 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Choose a file to import</h5>
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
                         {% csrf_token %}
                         <div class="form-group">
-                            <input type="file" name="csv_file" accept=".csv,.xlsx,.xls" class="form-control-file">
+                            <input type="file" name="csv_file" id="csv_file" accept=".csv,.xlsx,.xls" class="form-control-file">
                         </div>
-                        <small class="text-danger">Please upload a CSV, Excel (.xlsx, .xls) file with the following order: ID, Date, Income Source, Cash In, Status, Project, Cost Center, Service Date</small>
+                        <small class="text-danger">Please upload a CSV, Excel (.xlsx, .xls) file with the following order:  Date, Income Source, Cash In, Status, Project, Cost Center, Service Date</small>
                         <button type="submit" class="btn btn-primary mt-3">Import</button>
                     </form>
                 </div>
@@ -40,7 +40,7 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        {% comment %} <th>ID</th> {% endcomment %}
                         <th>Date</th>
                         <th>Income Source</th>
                         <th>Cash In</th>
@@ -53,7 +53,7 @@
                 <tbody>
                     {% for record in imported_data %}
                     <tr>
-                        <td>{{ record.id }}</td>
+                        {% comment %} <td>{{ record.id }}</td> {% endcomment %}
                         <td>{{ record.date }}</td>
                         <td>{{ record.income_source }}</td>
                         <td>{{ record.cash_in }}</td>
@@ -70,4 +70,15 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+function validateForm() {
+    const fileInput = document.getElementById('csv_file');
+    if (!fileInput.value) {
+        alert('Please upload a file before submitting.');
+        return false;
+    }
+    return true;
+}
+</script>
 {% endblock %}

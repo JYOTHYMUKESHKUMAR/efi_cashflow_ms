@@ -211,11 +211,11 @@ def export_cashin(request):
     response['Content-Disposition'] = 'attachment; filename="cashin_data.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['ID', 'Date', 'Income Source', 'Cash In', 'Status','delayed_date', 'Project', 'Cost Center', 'Service Date'])
+    writer.writerow(['Date', 'Income Source', 'Cash In', 'Status','delayed_date', 'Project', 'Cost Center', 'Service Date'])
 
     for cashin in cashins:
         writer.writerow([
-            cashin.id,
+            # cashin.id,
             cashin.date,
             cashin.income_source.name,
             cashin.cash_in,
@@ -448,11 +448,11 @@ def export_cashout(request):
     response['Content-Disposition'] = 'attachment; filename="cashout_data.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['ID', 'Date', 'Expense Source', 'Cash Out', 'Status', 'delayed_date','Remark', 'Project', 'Cost Center', 'Service Date', 'Total Installment Amount', 'Balance to Pay'])
+    writer.writerow([ 'Date', 'Expense Source', 'Cash Out', 'Status', 'delayed_date','Remark', 'Project', 'Cost Center', 'Service Date', 'Total Installment Amount', 'Balance to Pay'])
 
     for cashout in cashouts:
         writer.writerow([
-            cashout.id,
+            # cashout.id,
             cashout.date,
             cashout.expense_source.name,
             cashout.cash_out,
